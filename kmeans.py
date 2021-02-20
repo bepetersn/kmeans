@@ -6,7 +6,6 @@ import math
 import random
 import copy
 import numpy as np
-from pprint import pprint
 import matplotlib
 from matplotlib import pyplot
 from mpl_toolkits.mplot3d import Axes3D
