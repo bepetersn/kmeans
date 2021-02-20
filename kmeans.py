@@ -4,6 +4,7 @@ import sys
 import csv
 import math
 import random
+import copy
 import numpy as np
 from pprint import pprint
 import matplotlib
@@ -43,7 +44,8 @@ def main():
 
     # Run the k-means algorithm to get the
     # group assignments
-    groups = k_means(np_data, NUM_CLUSTERS, initial_centers)
+    groups, new_centers = \
+        k_means(np_data, NUM_CLUSTERS, initial_centers)
 
     # Segregate the vectors into groups by the group 
     # assignments we generated above
@@ -56,10 +58,32 @@ def main():
     # Start plotting
     fig = pyplot.figure()
     ax = Axes3D(fig)
-    colors = ['red', 'green', 'blue']
+    colors = ['yellow', 'cyan', 'red']
 
+    # First plot the new centers
+    np_new_centers = np.array(new_centers)
+    np_new_centers_t = np_new_centers.transpose()
+    ax.scatter(
+        np_new_centers_t[0],
+        np_new_centers_t[1],
+        np_new_centers_t[2], color="green", marker="X",
+                             zorder=5
+    )
+
+    # Then the old centers
+    np_initial_centers = np.array(initial_centers)
+    np_initial_centers_t = np_initial_centers.transpose()
+    ax.scatter(
+        np_initial_centers_t[0],
+        np_initial_centers_t[1],
+        np_initial_centers_t[2], color="blue", marker="X",
+                                 zorder=5
+    )
+
+    # Plot each cluster one at a time
     for i, vector_group in enumerate(grouped_vectors):
         np_vector_group = np.array(vector_group)
+         # below: matplotlib expects axes separated out
         np_vector_group_t = np_vector_group.transpose()
         ax.scatter(
             np_vector_group_t[0], 
@@ -134,30 +158,32 @@ def k_means(vectors, k, reps):
     # representatives fo each group / cluster
 
     # Choose initial groups for each vector
-    groups = list(range(0, k-1))
+    groups = list(range(0, k))
     group_assignments = [random.randint(0, k-1) for _ in vectors]
+    # NOTE: Do the below so we don't muddle the original reps
+    group_reps = copy.deepcopy(reps)  
     old_j_clust = j_clust = math.inf
     while True:
         print("group assignments: {}".format(group_assignments))
-        print("reps: {}".format(reps))
+        print("group_reps: {}".format(group_reps))
         print("j_clust: {}".format(j_clust))
         for i, vector in enumerate(vectors):
             group_assignments[i] = \
-                get_closest_representative(vector, reps)
+                get_closest_representative(vector, group_reps)
         for group in groups:
             vector_indices_in_grp = \
                 [i for (i, g) in enumerate(group_assignments) \
                         if g == group]
-            reps[group] = get_vectors_average(
+            group_reps[group] = get_vectors_average(
                 [v for (i, v) in enumerate(vectors) \
                         if i in vector_indices_in_grp]
             )
         old_j_clust = j_clust
-        j_clust = get_j_clust(vectors, group_assignments, reps)
+        j_clust = get_j_clust(vectors, group_assignments, group_reps)
         if (old_j_clust - j_clust) <= GOOD_ENOUGH:
             print("diff: {}".format(old_j_clust - j_clust))
             break
-    return group_assignments
+    return group_assignments, group_reps
       
 
 if __name__ == "__main__":
