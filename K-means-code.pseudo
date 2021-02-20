@@ -1,0 +1,49 @@
+﻿Def get_norm(vector)
+      Return sqrt(vector.dot(vector))
+
+
+Def get_euclidean_distance(vector1, vector2)
+      Return norm(vector1 - vector2) # note: vector op
+
+
+Def get_vectors_average(vectors)
+      New_vector = [0] * len(vectors[0])
+      For vector in vectors:
+         For i, element in enumerate(vector):
+             New_vector[i] += element
+      For i in range(len(new_vector))
+         New_vector[i] = new_vector[i] / len(vectors)
+      Return new_vector
+
+
+Def get_closest_representative(vector, reps)
+      Min = Math.Infinity 
+      Min_i = None
+      For i, rep in enumerate(reps):
+          Result = get_euclidean_distance(rep, vector)
+         If result < min:
+              Min = result
+      Return min_i
+
+
+Def j_clust(vectors, groups, reps)
+      Value = 0
+      For i, vector in enumerate(vectors)
+            Value += sqrt(get_norm(vector - reps[groups[i]])) # note: vector op
+      Return value / len(vectors)
+
+
+Def k_means(vectors, k, reps=None)
+# Given a list of n vectors, xi, … , xn, and k, the number of groups to form
+# Choose initial group representatives 
+If reps is None:
+reps = vectors[1:k+1]
+# Choose initial groups for each vector
+Let groups = [random.randint(1,k) for _ in vectors]
+While true
+    For i in range(1, n):
+        groups[i] =  get_closest_representative(vectors[i], reps)
+        reps[i] = get_vectors_average(vectors)
+     If j_clust(vectors, groups, reps) < 0.001
+         Break
+Return groups
